@@ -32,6 +32,7 @@ cat   TreeFeatures1.json | jq -c '.[] | {sci_name: .sci_name}' | while read json
 	i=$(echo $json | jq -r .sci_name)
 	n=$((n+1))
 	echo " Traitement de $i"
+  echo "# taxons = $n, # infos = $ninfo, # images = $nimage"
 	echo "<h1>$i</h1>" >> $resume
 	touch toto
 	rm toto
