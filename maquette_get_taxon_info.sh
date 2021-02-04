@@ -34,6 +34,7 @@ cat   TreeFeatures1.json | jq -c '.[] | {sci_name: .sci_name}' | while read json
 		if [ $url  == null ]
 		then
 			echo "Pas d'image"
+			cat toto |jq '.query.pages[].extract' >> $resume
 		else
 			nimage=$((nimage+1))
 			echo "Nom de l'image = $image_name"
