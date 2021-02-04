@@ -1,4 +1,23 @@
 #!/bin/bash
+
+# Fonction d'encodage
+rawurlencode() {
+  local string="${1}"
+  local strlen=${#string}
+  local encoded=""
+  local pos c o
+
+  for (( pos=0 ; pos<strlen ; pos++ )); do
+     c=${string:$pos:1}
+     case "$c" in
+        [-_.~a-zA-Z0-9] ) o="${c}" ;;
+        * )               printf -v o '%%%02x' "'$c"
+     esac
+     encoded+="${o}"
+  done
+  echo "${encoded}"    # You can either set a return variable (FASTER)
+  REPLY="${encoded}"   #+or echo the result (EASIER)... or both... :p
+}
 set -euo pipefail
 LC_ALL=C
 OLD_IFS=$IFS
@@ -16,7 +35,8 @@ cat   TreeFeatures1.json | jq -c '.[] | {sci_name: .sci_name}' | while read json
 	echo "<h1>$i</h1>" >> $resume
 	touch toto
 	rm toto
-	wget -q  -O   toto "https://fr.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&titles=$i&redirects&exintro&piprop=original|thumbnail|name&pithumbsize=400&format=json"
+	encoded=$( rawurlencode "$i" )
+	wget -q  -O   toto "https://fr.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&titles=$encoded&redirects&exintro&piprop=original|thumbnail|name&pithumbsize=400&format=json"
 	# Verifie si l'info existe
 	miss=`cat toto |jq '.query.pages[].missing'`
 	if [ $miss == '""' ]
