@@ -23,15 +23,19 @@ LC_ALL=C
 OLD_IFS=$IFS
 IFS=$'\n'
 resume="resume.html"
+outjson="resume.json"
 touch $resume
 rm $resume
+touch $outjson
+rm $outjson
 n=0 #nb de de taxon
 ninfo=0  #nb de de taxon avec info
 nimage=0  #nb de de taxon avec image
-cat   TreeFeatures1.json | jq -c '.[] | {sci_name: .sci_name}' | while read json ; do
+cat   TreeFeatures2.json | jq -c '.[] | {sci_name: .sci_name , taxid: .taxid}' | while read json ; do
 	i=$(echo $json | jq -r .sci_name)
+  tid=$(echo $json | jq -r .taxid)
 	n=$((n+1))
-	echo " Traitement de $i"
+	echo " Traitement de $i (Taxon ID $tid)"
   echo "# taxons = $n, # infos = $ninfo, # images = $nimage"
 	echo "<h1>$i</h1>" >> $resume
   toto=`mktemp`
@@ -59,7 +63,8 @@ cat   TreeFeatures1.json | jq -c '.[] | {sci_name: .sci_name}' | while read json
 		if [ $url  == null ]
 		then
 			echo "Pas d'image"
-			cat $toto |jq '.query.pages[].extract' >> $resume
+      desc=`cat $toto |jq '.query.pages[].extract'`
+      echo $desc >> $resume
 		else
 			nimage=$((nimage+1))
 			echo "Nom de l'image = $image_name"
@@ -78,14 +83,51 @@ cat   TreeFeatures1.json | jq -c '.[] | {sci_name: .sci_name}' | while read json
       fi
 			wget -q  -O   $image_info "https://www.mediawiki.org/w/api.php?action=query&titles=File:$image_name&prop=imageinfo&iiprop=extmetadata&format=json"
 			# Recupere le texte
-			cat $toto |jq '.query.pages[].extract' >> $resume
+      desc=`cat $toto |jq '.query.pages[].extract'`
+      echo $desc >> $resume
 			# Ajoute l'image
 			echo "<br><img src=$image_name width = 200px><br>">> $resume
 			# Ajoute l'info sur l'image
 			echo "<h2>Image info :</h2>" >> $resume
 			cat $image_info >> $resume
+      #imgdesc=`cat $image_info|jq '.query.pages[].extract
+      imgdesc=`cat $image_info |jq '.query.pages[].imageinfo'`
+
+
+      if [ $imgdesc == null ]
+      then
+        artist="unknown"
+        credit="unknown"
+        licence="unknow"
+        copyrighted="unknown"
+        usage="unknown"
+      else
+        artist=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.Artist.value'`
+        credit=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.Credit.value'`
+        licence=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.LicenseShortName.value'`
+        copyrighted=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.Copyrighted.value'`
+        usage=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.UsageTerms.value'`
+      fi
+      echo "effacer $image_info"
       rm $image_info
-		fi
+      # Ecrit le json
+      # {
+      #      "sciname": "mus musculus",
+      #     "taxid": "2888222",
+      #     "desc": "tretf  fdjdsnfdsfds",
+      #     "image" {
+      #             "name": "Mouse.jpg",
+      #             "copyright": "",
+      #             "licence": "";
+      #             "credit": "",
+      #             "artist": ""
+      #             }
+      #   }
+      jo -p sciname=$i taxid=$tid desc=$desc img=$(jo name=$image_name licence=$licence credit=$credit artist=$artist copyrighted=$copyrighted usage=$usage) >>  $outjson
+      #jo -p sciname=$i taxid=$tid desc=$desc img=$(jo name="ll") >>  $outjson
+
+    fi
 	fi
+  echo "effacer $toto"
   rm $toto
 done
