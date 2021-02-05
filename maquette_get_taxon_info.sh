@@ -70,16 +70,21 @@ cat   TreeFeatures1.json | jq -c '.[] | {sci_name: .sci_name}' | while read json
 			# Recupere l'image
 			wget  -q $url
 			# Recupere l'info sur l'image
-			touch image_info
-			rm image_info
-			wget -q  -O   image_info "https://www.mediawiki.org/w/api.php?action=query&titles=File:$image_name&prop=imageinfo&iiprop=extmetadata&format=json"
+      image_info=`mktemp`
+      if [[ ! -f $image_info ]]
+      then
+        echo "Erreur pendant la creation du fichier temporaire"
+        exit 1
+      fi
+			wget -q  -O   $image_info "https://www.mediawiki.org/w/api.php?action=query&titles=File:$image_name&prop=imageinfo&iiprop=extmetadata&format=json"
 			# Recupere le texte
 			cat $toto |jq '.query.pages[].extract' >> $resume
 			# Ajoute l'image
 			echo "<br><img src=$image_name width = 200px><br>">> $resume
 			# Ajoute l'info sur l'image
 			echo "<h2>Image info :</h2>" >> $resume
-			cat image_info >> $resume
+			cat $image_info >> $resume
+      rm $image_info
 		fi
 	fi
   rm $toto
