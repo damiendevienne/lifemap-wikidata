@@ -22,10 +22,7 @@ set -euo pipefail
 LC_ALL=C
 OLD_IFS=$IFS
 IFS=$'\n'
-resume="resume.html"
 outjson="resume.json"
-touch $resume
-rm $resume
 touch $outjson
 rm $outjson
 n=0 #nb de de taxon
@@ -37,7 +34,6 @@ cat   TreeFeatures2.json | jq -c '.[] | {sci_name: .sci_name , taxid: .taxid}' |
 	n=$((n+1))
 	echo " Traitement de $i (Taxon ID $tid)"
   echo "# taxons = $n, # infos = $ninfo, # images = $nimage"
-	echo "<h1>$i</h1>" >> $resume
   toto=`mktemp`
   if [[ ! -f $toto ]]
   then
@@ -51,10 +47,9 @@ cat   TreeFeatures2.json | jq -c '.[] | {sci_name: .sci_name , taxid: .taxid}' |
 	if [ $miss == '""' ]
 	then
 		echo "Pas de données"
-		echo "Pas de données" >> $resume
 	else
 		ninfo=$((ninfo+1))
-		# Recupere l'image
+		# Recupere l'image thumbnail
 		#url=`cat toto |jq '.query.pages[].original.source' |sed -e 's/"//g'`
 		url=`cat $toto |jq '.query.pages[].thumbnail.source' |sed -e 's/"//g'`
 		# Recupere le nom  de l'image
@@ -64,7 +59,6 @@ cat   TreeFeatures2.json | jq -c '.[] | {sci_name: .sci_name , taxid: .taxid}' |
 		then
 			echo "Pas d'image"
       desc=`cat $toto |jq '.query.pages[].extract'`
-      echo $desc >> $resume
 		else
 			nimage=$((nimage+1))
 			echo "Nom de l'image = $image_name"
@@ -74,7 +68,7 @@ cat   TreeFeatures2.json | jq -c '.[] | {sci_name: .sci_name , taxid: .taxid}' |
 			# fi
 			# Recupere l'image
 			wget  -q $url
-			# Recupere l'info sur l'image
+			# Recupere l'info sur l'image (ici le thumb)
       image_info=`mktemp`
       if [[ ! -f $image_info ]]
       then
@@ -82,34 +76,41 @@ cat   TreeFeatures2.json | jq -c '.[] | {sci_name: .sci_name , taxid: .taxid}' |
         exit 1
       fi
 			wget -q  -O   $image_info "https://www.mediawiki.org/w/api.php?action=query&titles=File:$image_name&prop=imageinfo&iiprop=extmetadata&format=json"
-			# Recupere le texte
+			# Recupere la description
       desc=`cat $toto |jq '.query.pages[].extract'`
-      echo $desc >> $resume
-			# Ajoute l'image
-			echo "<br><img src=$image_name width = 200px><br>">> $resume
-			# Ajoute l'info sur l'image
-			echo "<h2>Image info :</h2>" >> $resume
-			cat $image_info >> $resume
-      #imgdesc=`cat $image_info|jq '.query.pages[].extract
-      imgdesc=`cat $image_info |jq '.query.pages[].imageinfo'`
 
+      # Recupere la description de l'image
+      imgdesc=`cat $image_info |jq '.query.pages[].imageinfo'`
 
       if [ $imgdesc == null ]
       then
-        artist="unknown"
-        credit="unknown"
-        licence="unknow"
-        copyrighted="unknown"
-        usage="unknown"
-      else
-        artist=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.Artist.value'`
-        credit=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.Credit.value'`
-        licence=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.LicenseShortName.value'`
-        copyrighted=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.Copyrighted.value'`
-        usage=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.UsageTerms.value'`
+        # Pas d'info sur l'image thumb on recupere la source
+        new_url=`cat $toto |jq '.query.pages[].original.source' |sed -e 's/"//g'`
+        new_image_name=`basename $new_url`
+        # On recupre la nouvelle info
+        rm $image_info
+        wget -q  -O   $image_info "https://www.mediawiki.org/w/api.php?action=query&titles=File:$new_image_name&prop=imageinfo&iiprop=extmetadata&format=json"
+
+        # Recupere la description de l'image
+        imgdesc=`cat $image_info |jq '.query.pages[].imageinfo'`
+
+        if [ $imgdesc == null ]
+        then
+          artist="unknown"
+          credit="unknown"
+          licence="unknow"
+          copyrighted="unknown"
+          usage="unknown"
+        else
+          artist=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.Artist.value'`
+          credit=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.Credit.value'`
+          licence=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.LicenseShortName.value'`
+          copyrighted=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.Copyrighted.value'`
+          usage=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.UsageTerms.value'`
+        fi
+        echo "effacer $image_info"
+        rm $image_info
       fi
-      echo "effacer $image_info"
-      rm $image_info
       # Ecrit le json
       # {
       #      "sciname": "mus musculus",
