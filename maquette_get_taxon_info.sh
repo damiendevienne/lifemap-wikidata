@@ -40,8 +40,6 @@ cat   TreeFeatures1.json | jq -c '.[] | {sci_name: .sci_name}' | while read json
     echo "Erreur pendant la creation du fichier temporaire"
     exit 1
   fi
-	touch toto
-	rm toto
 	encoded=$( rawurlencode "$i" )
 	wget -q  -O   $toto "https://fr.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&titles=$encoded&redirects&exintro&piprop=original|thumbnail|name&pithumbsize=400&format=json"
 	# Verifie si l'info existe
