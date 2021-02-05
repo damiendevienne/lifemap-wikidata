@@ -79,6 +79,3 @@ cat   TreeFeatures1.json | jq -c '.[] | {sci_name: .sci_name}' | while read json
 		fi
 	fi
 done
-echo "Nombre de taxon             : $n"
-echo "Nombre de taxon avec info   : $ninfo"
-echo "Nombre de taxon avec image   : $nimage"
