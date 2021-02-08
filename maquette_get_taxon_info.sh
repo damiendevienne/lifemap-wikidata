@@ -59,6 +59,8 @@ cat   TreeFeatures2.json | jq -c '.[] | {sci_name: .sci_name , taxid: .taxid}' |
 		then
 			echo "Pas d'image"
       desc=`cat $toto |jq '.query.pages[].extract'`
+      jo -p sciname=$i taxid=$tid desc=$desc  >>  $outjson
+
 		else
 			nimage=$((nimage+1))
 			echo "Nom de l'image = $image_name"
