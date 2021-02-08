@@ -90,10 +90,15 @@ cat   $injson | jq -c '.[] | {sci_name: .sci_name , taxid: .taxid}' | while read
 
       # Recupere la description de l'image
       imgdesc=`cat $image_info |jq '.query.pages[].imageinfo'`
+      artist="unknown"
+      credit="unknown"
+      licence="unknow"
+      copyrighted="unknown"
+      usage="unknown"
 
-      if [ $imgdesc == null ]
+      if [[ $imgdesc == null ]]
       then
-        # Pas d'info sur l'image thumb on recupere la source
+        echo "Pas d'info sur l'image thumb on recupere la source"
         new_url=`cat $toto |jq '.query.pages[].original.source' |sed -e 's/"//g'`
         new_image_name=`basename $new_url`
         # On recupre la nouvelle info
@@ -102,8 +107,8 @@ cat   $injson | jq -c '.[] | {sci_name: .sci_name , taxid: .taxid}' | while read
 
         # Recupere la description de l'image
         imgdesc=`cat $image_info |jq '.query.pages[].imageinfo'`
-
-        if [ $imgdesc == null ]
+        echo " DEBUG TEST imgdesc"
+        if [[ $imgdesc == null ]]
         then
           artist="unknown"
           credit="unknown"
@@ -118,6 +123,13 @@ cat   $injson | jq -c '.[] | {sci_name: .sci_name , taxid: .taxid}' | while read
           usage=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.UsageTerms.value'`
         fi
         rm $image_info
+      else
+        echo "Info sur l'image thumb OK"
+        artist=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.Artist.value'`
+        credit=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.Credit.value'`
+        licence=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.LicenseShortName.value'`
+        copyrighted=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.Copyrighted.value'`
+        usage=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.UsageTerms.value'`
       fi
       # Ecrit le json
       # {
