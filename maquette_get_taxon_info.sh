@@ -108,14 +108,8 @@ cat   $injson | jq -c '.[] | {sci_name: .sci_name , taxid: .taxid}' | while read
         # Recupere la description de l'image
         imgdesc=`cat $image_info |jq '.query.pages[].imageinfo'`
         echo " DEBUG TEST imgdesc"
-        if [[ $imgdesc == null ]]
+        if [[ $imgdesc != null ]]
         then
-          artist="unknown"
-          credit="unknown"
-          licence="unknow"
-          copyrighted="unknown"
-          usage="unknown"
-        else
           artist=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.Artist.value'`
           credit=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.Credit.value'`
           licence=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.LicenseShortName.value'`
