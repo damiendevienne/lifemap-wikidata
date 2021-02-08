@@ -117,7 +117,6 @@ cat   $injson | jq -c '.[] | {sci_name: .sci_name , taxid: .taxid}' | while read
           copyrighted=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.Copyrighted.value'`
           usage=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.UsageTerms.value'`
         fi
-        echo "effacer $image_info"
         rm $image_info
       fi
       # Ecrit le json
@@ -138,6 +137,5 @@ cat   $injson | jq -c '.[] | {sci_name: .sci_name , taxid: .taxid}' | while read
 
     fi
 	fi
-  echo "effacer $toto"
   rm $toto
 done
