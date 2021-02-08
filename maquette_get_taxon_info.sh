@@ -22,13 +22,20 @@ set -euo pipefail
 LC_ALL=C
 OLD_IFS=$IFS
 IFS=$'\n'
+if [[ $#  == 0 ]]
+then
+  echo "Utilisation:"
+  echo "$0 input.json"
+  exit
+fi
+injson=$1
 outjson="resume.json"
 touch $outjson
 rm $outjson
 n=0 #nb de de taxon
 ninfo=0  #nb de de taxon avec info
 nimage=0  #nb de de taxon avec image
-cat   TreeFeatures2.json | jq -c '.[] | {sci_name: .sci_name , taxid: .taxid}' | while read json ; do
+cat   $injson | jq -c '.[] | {sci_name: .sci_name , taxid: .taxid}' | while read json ; do
 	i=$(echo $json | jq -r .sci_name)
   tid=$(echo $json | jq -r .taxid)
 	n=$((n+1))
