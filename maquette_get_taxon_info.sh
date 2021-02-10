@@ -22,14 +22,14 @@ set -euo pipefail
 LC_ALL=C
 OLD_IFS=$IFS
 IFS=$'\n'
-if [[ $#  == 0 ]]
+if [[ $#  < 2 ]]
 then
   echo "Utilisation:"
-  echo "$0 input.json"
+  echo "$0 input.json output.json"
   exit
 fi
 injson=$1
-outjson="resume.json"
+outjson=$2
 touch $outjson
 rm $outjson
 n=0 #nb de de taxon
