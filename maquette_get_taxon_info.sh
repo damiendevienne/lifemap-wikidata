@@ -89,58 +89,32 @@ cat   $injson | jq -c '.[] | {sci_name: .sci_name , taxid: .taxid}' | while read
       desc=`cat $toto |jq '.query.pages[].extract'`
 
       # Recupere la description de l'image
-      imgdesc=`cat $image_info |jq '.query.pages[].imageinfo'`
+      # imgdesc=`cat $image_info |jq '.query.pages[].imageinfo'`
       artist="unknown"
       credit="unknown"
       licence="unknow"
       copyrighted="unknown"
       usage="unknown"
 
-      if [[ $imgdesc == null ]]
-      then
-        echo "Pas d'info sur l'image thumb on recupere la source"
-        new_url=`cat $toto |jq '.query.pages[].original.source' |sed -e 's/"//g'`
-        new_image_name=`basename $new_url`
-        # On recupre la nouvelle info
-        rm $image_info
-        wget -q  -O   $image_info "https://www.mediawiki.org/w/api.php?action=query&titles=File:$new_image_name&prop=imageinfo&iiprop=extmetadata&format=json"
+      original_url=`cat $toto |jq '.query.pages[].original.source' |sed -e 's/"//g'`
+      original_image_name=`basename $original_url`
+      # On recupre la nouvelle info
+      # rm $image_info
+      wget -q  -O   $image_info "https://www.mediawiki.org/w/api.php?action=query&titles=File:$original_image_name&prop=imageinfo&iiprop=extmetadata&format=json"
 
-        # Recupere la description de l'image
-        imgdesc=`cat $image_info |jq '.query.pages[].imageinfo'`
-        echo " DEBUG TEST imgdesc"
-        if [[ $imgdesc != null ]]
-        then
-          artist=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.Artist.value'`
-          credit=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.Credit.value'`
-          licence=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.LicenseShortName.value'`
-          copyrighted=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.Copyrighted.value'`
-          usage=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.UsageTerms.value'`
-        fi
-        rm $image_info
-      else
-        echo "Info sur l'image thumb OK"
+      # Recupere la description de l'image
+      imgdesc=`cat $image_info |jq '.query.pages[].imageinfo'`
+      echo " DEBUG TEST imgdesc"
+      if [[ $imgdesc != null ]]
+      then
         artist=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.Artist.value'`
         credit=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.Credit.value'`
         licence=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.LicenseShortName.value'`
         copyrighted=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.Copyrighted.value'`
         usage=`cat $image_info |jq '.query.pages[].imageinfo[].extmetadata.UsageTerms.value'`
       fi
-      # Ecrit le json
-      # {
-      #      "sciname": "mus musculus",
-      #     "taxid": "2888222",
-      #     "desc": "tretf  fdjdsnfdsfds",
-      #     "image" {
-      #             "name": "Mouse.jpg",
-      #             "copyright": "",
-      #             "licence": "";
-      #             "credit": "",
-      #             "artist": ""
-      #             }
-      #   }
+      rm $image_info
       jo -p sciname=$i taxid=$tid desc=$desc img=$(jo name=$image_name licence=$licence credit=$credit artist=$artist copyrighted=$copyrighted usage=$usage) >>  $outjson
-      #jo -p sciname=$i taxid=$tid desc=$desc img=$(jo name="ll") >>  $outjson
-
     fi
 	fi
   rm $toto
