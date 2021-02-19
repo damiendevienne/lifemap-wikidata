@@ -32,6 +32,8 @@ injson=$1
 outjson=$2
 touch $outjson
 rm $outjson
+nf=`wc -l $1`
+echo "Nombre d'especes = $nf"
 n=0 #nb de de taxon
 ninfo=0  #nb de de taxon avec info
 nimage=0  #nb de de taxon avec image
@@ -43,7 +45,7 @@ while IFS= read -r line
   tid=$(echo $line|cut -f1)
 	n=$((n+1))
 	echo " Traitement de $i (Taxon ID $tid)"
-  echo "# taxons = $n, # infos = $ninfo, # images = $nimage"
+  echo "# taxons = $n / $nf, # infos = $ninfo, # images = $nimage"
   toto=`mktemp`
   if [[ ! -f $toto ]]
   then
@@ -122,3 +124,5 @@ while IFS= read -r line
 	fi
   rm $toto
 done < $injson
+echo "Termine"
+echo "# taxons = $n / $nf, # infos = $ninfo, # images = $nimage"
