@@ -1,0 +1,13 @@
+cd example
+python ../split.py ../TreeFeatures2.json  > tax2spec.eukar
+split -l 100000 tax2spec.eukar split_
+
+touch lance_job.sh
+\rm lance_job.sh
+
+for file in `ls split*`
+do
+echo $file
+echo "../get_wiki_info.sh $file $file.json &> $file.log & " >> lance_job.sh
+
+done
