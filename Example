@@ -9,5 +9,12 @@ for file in `ls split*`
 do
 echo $file
 echo "../get_wiki_info.sh $file $file.json &> $file.log & " >> lance_job.sh
-
+echo "#!/bin/sh" > $file.slurm
+echo "#SBATCH--mem=180000"  >> $file.slurm
+echo "#SBATCH--time=24:00:00"  >> $file.slurm
+echo "#SBATCH--nodes=1"  >> $file.slurm
+echo "uname -a"  >> $file.slurm
+echo "/beegfs/data/penel/lifemap-wikidata/get_wiki_info.sh $file $file.json"  >> $file.slurm
+echo "date"  >> $file.slurm
+echo "Fin de job ok"  >> $file.slurm
 done
