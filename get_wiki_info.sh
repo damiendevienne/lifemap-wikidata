@@ -67,9 +67,30 @@ while IFS= read -r line
 		# Recupere le nom  de l'image
 		image_name=`basename $url`
 		echo $url
+    original_url=`cat $toto |jq '.query.pages[].original.source' |sed -e 's/"//g'`
 		if [ $url  == null ]
 		then
-			echo "Pas d'image"
+      echo "Pas d'image sur la page francaise test page anglaise"
+      vengl=`mktemp`
+      if [[ ! -f $vengl ]]
+      then
+        echo "Erreur pendant la creation du fichier temporaire"
+        exit 1
+      fi
+      wget -q  -O   $vengl "https://en.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&titles=$encoded&redirects&exintro&piprop=original|thumbnail|name&pithumbsize=400&format=json"
+      url=`cat $vengl |jq '.query.pages[].thumbnail.source' |sed -e 's/"//g'`
+      original_url=`cat $vengl |jq '.query.pages[].original.source' |sed -e 's/"//g'`
+      # Recupere le nom  de l'image
+      image_name=`basename $url`
+      echo $url
+    fi
+    if [ $url  == null ]
+		then
+
+
+      echo "Pas d'image sur la page anglaise"
+
+
       desc=`cat $toto |jq '.query.pages[].extract'`
       jo -p sciname=$i taxid=$tid desc=$desc  >>  $outjson
 
@@ -101,7 +122,7 @@ while IFS= read -r line
       copyrighted="unknown"
       usage="unknown"
 
-      original_url=`cat $toto |jq '.query.pages[].original.source' |sed -e 's/"//g'`
+      # original_url=`cat $toto |jq '.query.pages[].original.source' |sed -e 's/"//g'`
       original_image_name=`basename $original_url`
       # On recupre la nouvelle info
       # rm $image_info
