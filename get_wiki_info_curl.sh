@@ -55,7 +55,6 @@ while IFS= read -r line
   fi
 	encoded=$( rawurlencode "$i" )
   echo 	curl -A $useragent -o   $toto "https://fr.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&titles=$encoded&redirects&exintro&piprop=original|thumbnail|name&pithumbsize=400&format=json"
-exit
 	curl -A $useragent -o   $toto "https://fr.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&titles=$encoded&redirects&exintro&piprop=original|thumbnail|name&pithumbsize=400&format=json"
 	# Verifie si l'info existe
 	miss=`cat $toto |jq '.query.pages[].missing'`
