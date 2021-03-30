@@ -54,8 +54,8 @@ while IFS= read -r line
     exit 1
   fi
 	encoded=$( rawurlencode "$i" )
-  echo 	curl --connect-timeout 9000 -A $useragent -o   $toto "https://fr.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&titles=$encoded&redirects&exintro&piprop=original|thumbnail|name&pithumbsize=400&format=json"
-	curl  --connect-timeout 9000 -A $useragent -o   $toto "https://fr.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&titles=$encoded&redirects&exintro&piprop=original|thumbnail|name&pithumbsize=400&format=json"
+  echo 	curl --connect-timeout 9000 --max-time 9000 -A $useragent -o   $toto "https://fr.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&titles=$encoded&redirects&exintro&piprop=original|thumbnail|name&pithumbsize=400&format=json"
+	curl  --connect-timeout 9000 --max-time 9000 -A $useragent -o   $toto "https://fr.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&titles=$encoded&redirects&exintro&piprop=original|thumbnail|name&pithumbsize=400&format=json"
 	# Verifie si l'info existe
 	miss=`cat $toto |jq '.query.pages[].missing'`
 	if [ $miss == '""' ]
@@ -79,7 +79,7 @@ while IFS= read -r line
         echo "Erreur pendant la creation du fichier temporaire"
         exit 1
       fi
-      curl  --connect-timeout 9000 -A $useragent  -o   $vengl "https://en.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&titles=$encoded&redirects&exintro&piprop=original|thumbnail|name&pithumbsize=400&format=json"
+      curl  --connect-timeout 9000 --max-time 9000 -A $useragent  -o   $vengl "https://en.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&titles=$encoded&redirects&exintro&piprop=original|thumbnail|name&pithumbsize=400&format=json"
       url=`cat $vengl |jq '.query.pages[].thumbnail.source' |sed -e 's/"//g'`
       original_url=`cat $vengl |jq '.query.pages[].original.source' |sed -e 's/"//g'`
       # Recupere le nom  de l'image
@@ -104,7 +104,7 @@ while IFS= read -r line
 			# 	rm $image_name
 			# fi
 			# Recupere l'image
-			curl  --connect-timeout 9000 -A $useragent -O  $url
+			curl  --connect-timeout 9000 --max-time 9000 -A $useragent -O  $url
 			# Recupere l'info sur l'image (ici le thumb)
       image_info=`mktemp`
       if [[ ! -f $image_info ]]
@@ -112,7 +112,7 @@ while IFS= read -r line
         echo "Erreur pendant la creation du fichier temporaire"
         exit 1
       fi
-			curl   --connect-timeout 9000 -A $useragent   -o   $image_info "https://www.mediawiki.org/w/api.php?action=query&titles=File:$image_name&prop=imageinfo&iiprop=extmetadata&format=json"
+			curl   --connect-timeout 9000 --max-time 9000 -A $useragent   -o   $image_info "https://www.mediawiki.org/w/api.php?action=query&titles=File:$image_name&prop=imageinfo&iiprop=extmetadata&format=json"
 			# Recupere la description
       desc=`cat $toto |jq '.query.pages[].extract'`
 
@@ -128,7 +128,7 @@ while IFS= read -r line
       original_image_name=`basename $original_url`
       # On recupre la nouvelle info
       # rm $image_info
-      curl  --connect-timeout 9000 -A $useragent   -o   $image_info "https://www.mediawiki.org/w/api.php?action=query&titles=File:$original_image_name&prop=imageinfo&iiprop=extmetadata&format=json"
+      curl  --connect-timeout 9000 --max-time 9000 -A $useragent   -o   $image_info "https://www.mediawiki.org/w/api.php?action=query&titles=File:$original_image_name&prop=imageinfo&iiprop=extmetadata&format=json"
 
       # Recupere la description de l'image
       imgdesc=`cat $image_info |jq '.query.pages[].imageinfo'`
