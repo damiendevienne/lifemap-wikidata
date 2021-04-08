@@ -4,7 +4,7 @@
 
 Split the data in sets  of 10 000 taxons
 
-    python split.py TreeFeatures2.json  > tax2spec.eukar
+    python ../split.py ../TreeFeatures2.json  > tax2spec.eukar
     split -l 10000 tax2spec.eukar split_
 
 Generate a script
@@ -18,12 +18,12 @@ Generate a script
 
 Script looks like:
 
-    get_wiki_info_curl.sh split_aa split_aa.json &> split_aa.log & 
+    ../get_wiki_info_curl.sh split_aa split_aa.json &> split_aa.log & 
     sleep 5
     .
     .
     .
-    get_wiki_info_curl.sh split_ft split_ft.json &> split_ft.log & 
+    ../get_wiki_info_curl.sh split_ft split_ft.json &> split_ft.log & 
     sleep 5
 
 
