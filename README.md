@@ -29,5 +29,7 @@ Script looks like:
 
 ## How to tar all the images:
 
+The is to many images to use the wildcard *
+
     grep "\"name\""   split_*.json  | awk '{print $3}'|cut -f1 -d","|sed -e "s/^\"//" |sed -e "s/\"$//" > List_images
     tar -cf ../new_tar/eukar_image.tar  -T List_images
