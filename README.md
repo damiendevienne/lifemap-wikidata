@@ -1,6 +1,6 @@
 # Getting offline information from wikidata to populate popups in Lifemap
 
-## Get the wikpedia infrmation and generate the json file  and dowvload associated images
+## Get the wikpedia information and generate the json files  and download associated images
 
 Split the data in sets  of 10 000 taxons
 
