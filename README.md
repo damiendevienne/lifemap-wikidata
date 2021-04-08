@@ -26,6 +26,8 @@ Script looks like:
     ../get_wiki_info_curl.sh split_ft split_ft.json &> split_ft.log & 
     sleep 5
 
+Finally slit the script in to blocks of scripts of 20 jobs  (20 seems to be the max number of connections) and launch them one by one
+
 
 ## How to tar all the images:
 
