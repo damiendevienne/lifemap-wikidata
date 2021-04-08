@@ -31,7 +31,7 @@ Finally slit the script in to blocks of scripts of 20 jobs  (20 seems to be the 
 
 ## How to tar all the images:
 
-The is to many images to use the wildcard * for selecting images
+There is to many images to use the wildcard * for selecting images
 
     grep "\"name\""   split_*.json  | awk '{print $3}'|cut -f1 -d","|sed -e "s/^\"//" |sed -e "s/\"$//" > List_images
     tar -cf ../new_tar/eukar_image.tar  -T List_images
